@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#06080b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MagicGlass" />
+  <meta name="description" content="Unabhängiger Kamera-Kartenzauber: falsche Karte im Livebild, echte Karte nach geheimem Trigger." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+  <title>MagicGlass — Card Tracking</title>
+</head>
+<body>
+  <video id="camera" autoplay muted playsinline webkit-playsinline aria-hidden="true"></video>
+  <canvas id="stage" aria-label="Live-Kamera mit eingeblendeter Spielkarte"></canvas>
+  <div id="flash" aria-hidden="true"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <header id="header">
+    <div class="brand"><span class="spark">✦</span> MAGIC<span class="thin">GLASS</span></div>
+    <div class="status"><span id="statusDot"></span><span id="statusText">DEMO</span></div>
+  </header>
+  <div id="calBar" class="calbar" hidden>
+    <span id="calText">Ecke 1 von 4</span>
+    <button type="button" id="cancelCal" aria-label="Abbrechen">✕</button>
+  </div>
+  <div id="chrome" class="camera-chrome" hidden>
+    <div class="camera-top"><span class="flash-symbol">ϟ</span><span class="top-chevron">⌃</span><span class="top-right"><span>◎</span><span>▦</span></span></div>
+    <div class="camera-bottom">
+      <div class="camera-zoom"><span class="zoom-inactive">.5</span><span class="zoom-active">1×</span><span class="zoom-inactive">2</span></div>
+      <div class="camera-controls"><span class="preview-thumb" aria-hidden="true">♥</span><button type="button" id="shutter" class="shutter" aria-label="Geheimes Reveal auslösen"><span></span></button><span class="cam-circle" aria-hidden="true">⟳</span></div>
+      <div class="camera-modes" aria-hidden="true"><span>VIDEO</span><strong>FOTO</strong></div>
+      <div class="camera-home"></div>
+    </div>
+  </div>
+  <div id="secretZone" aria-label="Geheime Einstellungen: 1 Sekunde halten"></div>
+  <div id="panel" class="panel">
+    <div class="grab"></div>
+    <div class="panel-title"><div><span class="eyebrow">V3.0 · CARD TRACKING</span><h1>Die Karte war<br><em>immer dieselbe.</em></h1></div><span class="pill">✦ MAGIC</span></div>
+    <p class="intro">Die Selfie-Kamera zeigt zunächst eine falsche Karte. Du bewegst die echte Karte, der Tracker folgt ihr. Dein Trigger enthüllt sie.</p>
+    <div class="section-head"><span>01</span><strong>KAMERA</strong></div>
+    <div class="btn-row">
+      <button id="cameraBtn" class="secondary" type="button">◎ Selfie-Kamera starten</button>
+      <button id="demoBtn" class="secondary" type="button">▦ Demo</button>
+    </div>
+    <p class="hint" id="cameraHint">Für die iPhone-Kamera ist HTTPS und deine Kamerafreigabe erforderlich.</p>
+    <div class="toggle"><div><strong>Frontkamera spiegeln</strong><span>Wie das Vorschau-Bild der iPhone-Selfie-Kamera</span></div><input id="mirrorToggle" type="checkbox" checked /></div>
+    <button id="switchCamera" class="text-action" type="button">↻ Zur Rückkamera wechseln</button>
+    <div class="section-head"><span>02</span><strong>KARTEN FÜR DEN TRICK</strong></div>
+    <p class="minor">Welche Karte liegt wirklich in deiner Hand?</p>
+    <div class="form-row">
+      <label>Physische Karte <select id="realRank"></select></label>
+      <label>Kartenfarbe <select id="realSuit"></select></label>
+    </div>
+    <p class="minor">Welche falsche Karte soll das Kamerabild zunächst zeigen?</p>
+    <div class="form-row">
+      <label>Digitale Tarnkarte <select id="fakeRank"></select></label>
+      <label>Kartenfarbe <select id="fakeSuit"></select></label>
+    </div>
+    <label class="upload">Oder ein exaktes Foto der Tarnkarte verwenden
+      <input id="fakeUpload" type="file" accept="image/*" />
+    </label>
+    <div class="section-head"><span>03</span><strong>KARTE AUSRICHTEN</strong></div>
+    <p class="hint">Halte die echte Karte in das Kamerabild. Zum erstmaligen Erkennen markiere ihre vier Ecken in der Reihenfolge oben links → oben rechts → unten rechts → unten links.</p>
+    <div class="btn-row">
+      <button id="calibrateBtn" type="button" class="secondary">⌗ Vier Ecken markieren</button>
+      <button id="resetQuad" type="button" class="secondary">↺ Reset</button>
+    </div>
+    <div class="toggle"><div><strong>Karte in Bewegung verfolgen <small>BETA</small></strong><span>Mehrpunkt-Tracking mit Perspektivkorrektur. Karte sollte beim Einrichten gut ausgeleuchtet sein.</span></div><input id="trackToggle" type="checkbox" checked /></div>
+    <div class="section-head"><span>04</span><strong>GEHEIMER TRIGGER</strong></div>
+    <div class="toggle"><div><strong>Tippen zum Enthüllen</strong><span>Im Kameramodus einmal auf das Bild tippen, zwei Finger auflegen oder den Auslöser drücken</span></div><span class="always">AKTIV</span></div>
+    <div class="toggle"><div><strong>Schütteln als Trigger</strong><span>Experimentell; benötigt ggf. iOS-Freigabe</span></div><input id="shakeToggle" type="checkbox" /></div>
+    <div class="toggle"><div><strong>Kurzer Lichtblitz</strong><span>Optionaler visueller Akzent beim Enthüllen</span></div><input id="flashToggle" type="checkbox" /></div>
+    <button type="button" id="performBtn" class="primary"><span>Vorführung starten</span><span>↗</span></button>
+    <p class="note">Im Vorführmodus oben links 1 Sekunde halten, um zurück zu den Einstellungen zu gelangen. Der Kamerastream verlässt dein Gerät nicht. Keine Verbindung zur BELOW-App.</p>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
